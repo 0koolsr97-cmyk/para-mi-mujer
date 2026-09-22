@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Para Mi Esposa Hermosa ❤️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background-color: #03030c;
+      color: #ffffff;
+    }
+
+    /* Canvas para la Galaxia */
+    #galaxyCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Contenedor Principal */
+    .container {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Header / Título Inicial */
+    .header-title {
+      text-align: center;
+      margin-top: 30px;
+      margin-bottom: 20px;
+      animation: fadeInDown 1.5s ease-in-out;
+    }
+
+    .header-title h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      background: linear-gradient(45deg, #ffd700, #ff8c00, #ff69b4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+
+    /* Galería de Fotos / Slideshow */
+    .slideshow-container {
+      position: relative;
+      max-width: 650px;
+      width: 90%;
+      height: 420px;
+      margin: 20px auto;
+      border-radius: 20px;
+      box-shadow: 0 0 35px rgba(138, 43, 226, 0.4), 0 0 15px rgba(255, 215, 0, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      background: rgba(15, 10, 30, 0.6);
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      animation: zoomFade 1.2s ease-in-out;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 18px;
+    }
+
+    /* Botones de Navegación */
+    .prev, .next {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 12px 18px;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+      transition: 0.3s ease;
+      border-radius: 50%;
+      user-select: none;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .next { right: 15px; }
+    .prev { left: 15px; }
+
+    .prev:hover, .next:hover {
+      background: rgba(255, 215, 0, 0.8);
+      color: #000;
+      box-shadow: 0 0 15px #ffd700;
+    }
+
+    /* Indicador de fotos */
+    .dots-container {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .dot {
+      cursor: pointer;
+      height: 12px;
+      width: 12px;
+      margin: 0 5px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      display: inline-block;
+      transition: background-color 0.4s ease, transform 0.3s;
+    }
+
+    .active-dot, .dot:hover {
+      background-color: #ffd700;
+      box-shadow: 0 0 10px #ffd700;
+      transform: scale(1.3);
+    }
+
+    /* Botón Sorpresa Final */
+    .btn-surprise {
+      margin-top: 30px;
+      padding: 15px 35px;
+      font-size: 1.2rem;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(45deg, #ff416c, #8a2be2, #ffb700);
+      background-size: 200% 200%;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(255, 105, 180, 0.5);
+      transition: all 0.4s ease;
+      animation: gradientMove 3s infinite alternate;
+    }
+
+    .btn-surprise:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 35px rgba(255, 215, 0, 0.8);
+    }
+
+    /* Sección Final (Sorpresa) */
+    .finale-section {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 50px;
+      padding-bottom: 80px;
+      text-align: center;
+      width: 100%;
+      max-width: 900px;
+      animation: fadeInUp 2s ease-in-out forwards;
+    }
+
+    /* Ramo de Girasoles en SVG */
+    .sunflower-bouquet {
+      width: 320px;
+      height: 380px;
+      margin: 20px 0;
+      filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.6));
+      animation: pulseGlow 3s infinite alternate;
+    }
+
+    /* Mensaje Romántico */
+    .love-message {
+      font-family: 'Dancing Script', cursive;
+      font-size: 3.5rem;
+      color: #ffe066;
+      text-shadow: 0 0 15px #ff9900, 0 0 30px #ff0055;
+      margin: 25px 10px;
+      line-height: 1.2;
+    }
+
+    /* Corazón Matemático */
+    .math-card {
+      background: rgba(20, 10, 35, 0.85);
+      border: 2px solid rgba(255, 105, 180, 0.4);
+      border-radius: 20px;
+      padding: 30px;
+      margin-top: 30px;
+      box-shadow: 0 0 30px rgba(255, 20, 147, 0.3);
+      max-width: 500px;
+      width: 95%;
+    }
+
+    #heartCanvas {
+      width: 260px;
+      height: 260px;
+      margin: 10px auto;
+      display: block;
+    }
+
+    .math-formula {
+      font-family: 'Georgia', serif;
+      font-style: italic;
+      font-size: 1.3rem;
+      color: #ffb6c1;
+      margin-top: 15px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(255, 182, 193, 0.6);
+    }
+
+    /* Animaciones Keyframes */
+    @keyframes zoomFade {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5)); }
+      100% { transform: scale(1.04); filter: drop-shadow(0 0 35px rgba(255, 215, 0, 0.9)); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fondo de Galaxia -->
+  <canvas id="galaxyCanvas"></canvas>
+
+  <div class="container">
+    
+    <!-- Encabezado -->
+    <div class="header-title">
+      <h2>Nuestra Historia en las Estrellas ✨</h2>
+    </div>
+
+    <!-- Carrusel de Fotos -->
+    <div class="slideshow-container">
+      <div class="slide active">
+        <img src="1 foto.jpg" alt="Nuestra foto 1">
+      </div>
+      <div class="slide">
+        <img src="2 foto.png" alt="Nuestra foto 2">
+      </div>
+      <div class="slide">
+        <img src="3 foto.jpg" alt="Nuestra foto 3">
+      </div>
+      <div class="slide">
+        <img src="4 foto.jpg" alt="Nuestra foto 4">
+      </div>
+      <div class="slide">
+        <img src="5 foto.jpg" alt="Nuestra foto 5">
+      </div>
+      <div class="slide">
+        <img src="6 foto.jpg" alt="Nuestra foto 6">
+      </div>
+      <div class="slide">
+        <img src="7 foto.jpg" alt="Nuestra foto 7">
+      </div>
+      <div class="slide">
+        <img src="8 foto.jpg" alt="Nuestra foto 8">
+      </div>
+      <div class="slide">
+        <img src="10 foto.jpg" alt="Nuestra foto 9">
+      </div>
+
+      <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
+      <a class="next" onclick="changeSlide(1)">&#10095;</a>
+    </div>
+
+    <!-- Puntos de navegación -->
+    <div class="dots-container">
+      <span class="dot active-dot" onclick="currentSlide(0)"></span>
+      <span class="dot" onclick="currentSlide(1)"></span>
+      <span class="dot" onclick="currentSlide(2)"></span>
+      <span class="dot" onclick="currentSlide(3)"></span>
+      <span class="dot" onclick="currentSlide(4)"></span>
+      <span class="dot" onclick="currentSlide(5)"></span>
+      <span class="dot" onclick="currentSlide(6)"></span>
+      <span class="dot" onclick="currentSlide(7)"></span>
+      <span class="dot" onclick="currentSlide(8)"></span>
+    </div>
+
+    <!-- Botón para revelar la sorpresa final -->
+    <button class="btn-surprise" id="btnSurprise" onclick="revealFinale()"> Ver Regalo Especial 🌻</button>
+
+    <!-- Sección Final con Ramo, Mensaje y Corazón Matemático -->
+    <div class="finale-section" id="finaleSection">
+      
+      <!-- Ramo de Girasoles Ilustrado -->
+      <svg class="sunflower-bouquet" viewBox="0 0 500 600" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="stemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2e7d32" />
+            <stop offset="100%" stop-color="#1b5e20" />
+          </linearGradient>
+          <linearGradient id="petalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffe082" />
+            <stop offset="50%" stop-color="#ffca28" />
+            <stop offset="100%" stop-color="#ff8f00" />
+          </linearGradient>
+          <radialGradient id="centerGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#5d4037" />
+            <stop offset="70%" stop-color="#3e2723" />
+            <stop offset="100%" stop-color="#1b0000" />
+          </radialGradient>
+          <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ff4081" />
+            <stop offset="100%" stop-color="#f50057" />
+          </linearGradient>
+        </defs>
+
+        <!-- Tallos y Hojas -->
+        <path d="M250,380 Q210,480 180,550 M250,380 Q250,480 250,560 M250,380 Q290,480 320,550" stroke="url(#stemGrad)" stroke-width="12" stroke-linecap="round" fill="none"/>
+        <path d="M220,440 Q160,420 170,470 Q210,480 220,440" fill="#2e7d32"/>
+        <path d="M280,440 Q340,420 330,470 Q290,480 280,440" fill="#2e7d32"/>
+
+        <!-- Lazo del Ramo -->
+        <path d="M210,420 C230,400 270,400 290,420 C300,440 200,440 210,420 Z" fill="url(#ribbonGrad)"/>
+        <path d="M245,420 L200,500 L230,505 L250,425 Z" fill="#f50057"/>
+        <path d="M255,420 L300,500 L270,505 L250,425 Z" fill="#c2185b"/>
+
+        <!-- Girasol Centro (Principal) -->
+        <g transform="translate(250, 240)">
+          <!-- Pétalos -->
+          <g id="petals">
+            <!-- 16 Pétalos radiales -->
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(22.5)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(45)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(67.5)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(90)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(112.5)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(135)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(157.5)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(180)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(202.5)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(225)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(247.5)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(270)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(292.5)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(315)"/>
+            <path d="M0,0 L-15,-90 Q0,-115 15,-90 Z" fill="url(#petalGrad)" transform="rotate(337.5)"/>
+          </g>
+          <!-- Centro de semillas -->
+          <circle cx="0" cy="0" r="48" fill="url(#centerGrad)" stroke="#3e2723" stroke-width="3"/>
+        </g>
+
+        <!-- Girasol Izquierdo -->
+        <g transform="translate(150, 200) scale(0.8)">
+          <use href="#petals"/>
+          <circle cx="0" cy="0" r="48" fill="url(#centerGrad)" stroke="#3e2723" stroke-width="3"/>
+        </g>
+
+        <!-- Girasol Derecho -->
+        <g transform="translate(350, 200) scale(0.8)">
+          <use href="#petals"/>
+          <circle cx="0" cy="0" r="48" fill="url(#centerGrad)" stroke="#3e2723" stroke-width="3"/>
+        </g>
+
+        <!-- Girasol Superior -->
+        <g transform="translate(250, 110) scale(0.75)">
+          <use href="#petals"/>
+          <circle cx="0" cy="0" r="48" fill="url(#centerGrad)" stroke="#3e2723" stroke-width="3"/>
+        </g>
+      </svg>
+
+      <!-- Mensaje para la esposa -->
+      <h1 class="love-message">Para mi esposa hermosa,<br>la amo para siempre ❤️</h1>
+
+      <!-- Tarjeta del Corazón Matemático -->
+      <div class="math-card">
+        <canvas id="heartCanvas" width="260" height="260"></canvas>
+        <div class="math-formula">
+          $$(x^2 + y^2 - 1)^3 - x^2 y^3 = 0$$
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    /* --------------------------------------------------
+       1. FONDO DE GALAXIA ANIMADO (CANVAS)
+    -------------------------------------------------- */
+    const galaxyCanvas = document.getElementById('galaxyCanvas');
+    const ctx = galaxyCanvas.getContext('2d');
+
+    let stars = [];
+    const numStars = 220;
+
+    function resizeCanvas() {
+      galaxyCanvas.width = window.innerWidth;
+      galaxyCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Star {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * galaxyCanvas.width;
+        this.y = Math.random() * galaxyCanvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.color = ['#ffffff', '#ffe9a3', '#d4f0ff', '#ffb6c1', '#e0b0ff'][Math.floor(Math.random() * 5)];
+        this.alpha = Math.random();
+        this.speed = Math.random() * 0.015 + 0.005;
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      update() {
+        this.alpha += this.speed;
+        if (this.alpha > 1 || this.alpha < 0.1) {
+          this.speed = -this.speed;
+        }
+      }
+    }
+
+    for (let i = 0; i < numStars; i++) {
+      stars.push(new Star());
+    }
+
+    function animateGalaxy() {
+      ctx.clearRect(0, 0, galaxyCanvas.width, galaxyCanvas.height);
+
+      // Gradiente de Nebulosa
+      let grad = ctx.createRadialGradient(
+        galaxyCanvas.width / 2, galaxyCanvas.height / 2, 10,
+        galaxyCanvas.width / 2, galaxyCanvas.height / 2, Math.max(galaxyCanvas.width, galaxyCanvas.height)
+      );
+      grad.addColorStop(0, 'rgba(30, 10, 50, 0.5)');
+      grad.addColorStop(0.5, 'rgba(10, 5, 25, 0.8)');
+      grad.addColorStop(1, 'rgba(3, 3, 12, 1)');
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, galaxyCanvas.width, galaxyCanvas.height);
+
+      stars.forEach(star => {
+        star.update();
+        star.draw();
+      });
+
+      requestAnimationFrame(animateGalaxy);
+    }
+    animateGalaxy();
+
+
+    /* --------------------------------------------------
+       2. CONTROL DEL SLIDESHOW DE FOTOS
+    -------------------------------------------------- */
+    let slideIndex = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+    let autoSlideInterval = setInterval(() => changeSlide(1), 4000);
+
+    function showSlide(n) {
+      if (n >= slides.length) slideIndex = 0;
+      if (n < 0) slideIndex = slides.length - 1;
+
+      slides.forEach(slide => slide.classList.remove('active'));
+      dots.forEach(dot => dot.classList.remove('active-dot'));
+
+      slides[slideIndex].classList.add('active');
+      dots[slideIndex].classList.add('active-dot');
+    }
+
+    function changeSlide(n) {
+      clearInterval(autoSlideInterval);
+      slideIndex += n;
+      showSlide(slideIndex);
+      autoSlideInterval = setInterval(() => changeSlide(1), 4000);
+    }
+
+    function currentSlide(n) {
+      clearInterval(autoSlideInterval);
+      slideIndex = n;
+      showSlide(slideIndex);
+      autoSlideInterval = setInterval(() => changeSlide(1), 4000);
+    }
+
+
+    /* --------------------------------------------------
+       3. CORAZÓN CON FÓRMULA MATEMÁTICA ANIMADA
+    -------------------------------------------------- */
+    const heartCanvas = document.getElementById('heartCanvas');
+    const hCtx = heartCanvas.getContext('2d');
+    let heartStep = 0;
+
+    function drawHeart() {
+      hCtx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
+
+      const centerX = heartCanvas.width / 2;
+      const centerY = heartCanvas.height / 2 - 10;
+      const scale = 7.5;
+
+      hCtx.beginPath();
+      hCtx.lineWidth = 3;
+      hCtx.strokeStyle = '#ff2a6d';
+      hCtx.shadowBlur = 15;
+      hCtx.shadowColor = '#ff2a6d';
+
+      // Ecuación Paramétrica del Corazón
+      // x = 16 * sin^3(t)
+      // y = 13 * cos(t) - 5 * cos(2t) - 2 * cos(3t) - cos(4t)
+      for (let t = 0; t <= heartStep; t += 0.02) {
+        let x = 16 * Math.pow(Math.sin(t), 3);
+        let y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+
+        let canvasX = centerX + x * scale;
+        let canvasY = centerY - y * scale; // Invertir Y para coordenadas canvas
+
+        if (t === 0) {
+          hCtx.moveTo(canvasX, canvasY);
+        } else {
+          hCtx.lineTo(canvasX, canvasY);
+        }
+      }
+      hCtx.stroke();
+
+      if (heartStep < Math.PI * 2) {
+        heartStep += 0.05;
+        requestAnimationFrame(drawHeart);
+      } else {
+        // Relleno suave resplandeciente al terminar el trazo
+        hCtx.fillStyle = 'rgba(255, 42, 109, 0.25)';
+        hCtx.fill();
+      }
+    }
+
+
+    /* --------------------------------------------------
+       4. REVELAR SECCIÓN FINAL Y SCROLL SUAVE
+    -------------------------------------------------- */
+    function revealFinale() {
+      const finale = document.getElementById('finaleSection');
+      const btn = document.getElementById('btnSurprise');
+
+      finale.style.display = 'flex';
+      btn.style.display = 'none';
+
+      // Dibujar el corazón de forma animada
+      heartStep = 0;
+      drawHeart();
+
+      // Desplazamiento suave hacia la sorpresa
+      finale.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
